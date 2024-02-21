@@ -101,7 +101,7 @@ private:
 
           std_msgs::msg::String msg;
           msg.data = "DRAW";
-          publisher2_->publish(msg);x`  
+          publisher2_->publish(msg);  
           break;
         }
 
@@ -111,28 +111,19 @@ private:
           k = computer_move();
           board_[k] = 1;
 
-          // if(check_win() == 1){
-          //   RCLCPP_INFO(this->get_logger(), "Publishing: %d", k+1);
-          //   RCLCPP_INFO(this->get_logger(), "LOSE");
-
-          //   std_msgs::msg::String msg;
-          //   msg.data = "LOSE";
-            
-          //   std_msgs::msg::Int16 computer_msg;
-          //   computer_msg.data = k + 1;
-
-          //   std::this_thread::sleep_for(std::chrono::seconds(1));
-            
-          //   publisher_->publish(computer_msg);
-          //   publisher2_->publish(msg);
-
-          // }
-
           RCLCPP_INFO(this->get_logger(), "Publishing: %d", k+1);
+
+          if(check_win() == 1){
+            RCLCPP_INFO(this->get_logger(), "LOSE");
+
+            std_msgs::msg::String msg;
+            msg.data = "LOSE";
+            
+            publisher2_->publish(msg);
+          }
 
           std_msgs::msg::Int16 computer_msg;
           computer_msg.data = k + 1;
-          std::this_thread::sleep_for(std::chrono::seconds(2));
           publisher_->publish(computer_msg);
 
           moves_++;

@@ -10,16 +10,20 @@ class CameraPublisher(Node):
 
     def __init__(self):
         super().__init__('camera_publisher')
-        self.subscription_ = self.create_subscription(Int16, 'topic2', self.callback, 10)
         self.subscription2_ = self.create_subscription(String, 'topic3', self.string_callback, 10)
+        self.subscription_ = self.create_subscription(Int16, 'topic2', self.callback, 10)
         self.publisher_ = self.create_publisher(Int16, 'topic1', 10)
 
         self.computer = np.zeros(10)
         self.player = np.zeros(10)
 
-        self.end = 'hello world'
+        self.end = None
         self.endflag = 0
 
+        self.moves = 0
+
+    
+    # Mendapatkan corner points dari grid tictactoe
     def get_corner_points(self, frame_shape):
             height, width = frame_shape
             corners = []
@@ -127,21 +131,25 @@ class CameraPublisher(Node):
             cv2.circle(cropped_frame, (a, b), 70, (225, 0, 0), -1)
 
 
+    # Menerima pesan berupa String dari control
     def string_callback(self, msg):
         self.get_logger().info('Received: %s' % msg.data)
 
         self.end = f'{msg.data}'
         self.endflag = 1
 
-        self.camera_frame()
+        if self.moves == 9:
+            self.camera_frame()
 
 
-    # Menerima pesan dari control
+    # Menerima pesan berupa Int dari control
     def callback(self, msg):
         self.get_logger().info('Received: %d' % msg.data)
         computer = msg.data
 
         self.computer[computer] = 1
+        
+        self.moves += 1
 
         self.camera_frame()
 
@@ -262,24 +270,36 @@ class CameraPublisher(Node):
 
             if self.endflag == 1:
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = 1
+                font_scale = 4
                 font_color = (0, 0, 0)
-                thickness = 4
+                thickness = 10
 
                 frame_size = cropped_frame.shape
 
                 text_size = cv2.getTextSize(self.end, font, font_scale, thickness)
 
-                text_x = int((frame_size[0] - text_size[0][0]) // 2)
-                text_y = int((frame_size[1] - text_size[0][1]) // 2)
+                text_x = int((frame_size[0] - text_size[0][0]) / 2)
+                text_y = int((frame_size[1] + text_size[0][1]) / 2)
+            
+                ux = int(text_x - 15)
+                uy = int(text_y + 15)
+                dx = int(text_x + text_size[0][0] + 15)
+                dy = int(text_y - text_size[0][1] - 15)
 
-                cv2.putText(frame, self.end, (text_x, text_y), font, font_scale, font_color, thickness)
+                rectangle_start = (int(text_x - 15), int(text_y + 15))
+                rectangle_end = (int(text_x + text_size[0][0] + 15), int(text_y - text_size[0][1] - 15))
+
+                # cv2.rectangle(cropped_frame, (corners[4][0], corners[4][1]), (corners[11][0], corners[11][1]), (255, 255, 255), -1)
+                cv2.rectangle(cropped_frame, rectangle_start, rectangle_end, (255, 255, 255), -1)
+                cv2.putText(cropped_frame, self.end, (text_x, text_y), font, font_scale, font_color, thickness)
 
             if flag == 1 and self.endflag == 0:
                 player_msg = Int16()
                 player_msg.data = index
             
                 self.publisher_.publish(player_msg)
+
+                self.moves += 1
 
                 break
 
