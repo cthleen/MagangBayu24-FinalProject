@@ -280,16 +280,10 @@ class CameraPublisher(Node):
 
                 text_x = int((frame_size[0] - text_size[0][0]) / 2)
                 text_y = int((frame_size[1] + text_size[0][1]) / 2)
-            
-                ux = int(text_x - 15)
-                uy = int(text_y + 15)
-                dx = int(text_x + text_size[0][0] + 15)
-                dy = int(text_y - text_size[0][1] - 15)
 
                 rectangle_start = (int(text_x - 15), int(text_y + 15))
                 rectangle_end = (int(text_x + text_size[0][0] + 15), int(text_y - text_size[0][1] - 15))
 
-                # cv2.rectangle(cropped_frame, (corners[4][0], corners[4][1]), (corners[11][0], corners[11][1]), (255, 255, 255), -1)
                 cv2.rectangle(cropped_frame, rectangle_start, rectangle_end, (255, 255, 255), -1)
                 cv2.putText(cropped_frame, self.end, (text_x, text_y), font, font_scale, font_color, thickness)
 
