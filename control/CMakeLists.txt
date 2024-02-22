@@ -13,14 +13,13 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(cv_bridge REQUIRED)
 
-add_executable(listener src/subscriber_member_function.cpp)
-ament_target_dependencies(listener rclcpp std_msgs cv_bridge)
-target_link_libraries(listener ${OpenCV_LIBS}) 
+add_executable(control src/control.cpp)
+ament_target_dependencies(control rclcpp std_msgs)
+target_link_libraries(control ${OpenCV_LIBS}) 
 
 install(TARGETS
-  listener
+  control
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
